@@ -139,6 +139,8 @@ CHANNEL_LAYERS = {
     },
 }
 
+AUTH_USER_MODEL = 'accounts.CustomUser'
+
 # Redirects
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
