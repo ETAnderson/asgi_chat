@@ -1,8 +1,11 @@
 import json
+import datetime
 from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.auth import login
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        self.user = self.scope["user"]
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'chat_%s' % self.room_name
 
@@ -25,19 +28,26 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
+        utc_time = datetime.datetime.now(datetime.timezone.utc)
+        utc_time = utc_time.isoformat()
+        user = self.scope["user"]
 
+        await login(self.scope, user)
         # Send message to room group
         await self.channel_layer.group_send(
             self.room_group_name,
             {
                 'type': 'chat_message',
-                'message': message
+                'message': message,
+                'utc_time': utc_time,
             }
         )
 
     # Receive message from room group
     async def chat_message(self, event):
         message = event['message']
+        utc_time = event['utc_time']
+        self.user = self.scope['user']
 
         # Send message to WebSocket
         await self.send(text_data=json.dumps({
