@@ -9,6 +9,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'chat_%s' % self.room_name
 
+        await login(self.scope, self.user)
         # Join room group
         await self.channel_layer.group_add(
             self.room_group_name,
@@ -31,6 +32,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         utc_time = datetime.datetime.now(datetime.timezone.utc)
         utc_time = utc_time.isoformat()
         user = self.scope["user"]
+        username = user.username
+        message = (username + ': ' + message + ' : ' + utc_time)
 
         await login(self.scope, user)
         # Send message to room group
@@ -40,6 +43,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'type': 'chat_message',
                 'message': message,
                 'utc_time': utc_time,
+                'username': username,
             }
         )
 
@@ -47,9 +51,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def chat_message(self, event):
         message = event['message']
         utc_time = event['utc_time']
-        self.user = self.scope['user']
+        username = event['username']
 
         # Send message to WebSocket
         await self.send(text_data=json.dumps({
-            'message': message
+            'message': message,
+            'utc_time': utc_time,
+            'username': username,
         }))
