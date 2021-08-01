@@ -9,7 +9,7 @@
     <title>Chat Rooms</title>
 </head>
 <body>
-    What chat room would you like to enter?<br>
+    What chat room would you like to enter or create?<br>
     <input id="room-name-input" type="text" size="100"><br>
     <input id="room-name-submit" type="button" value="Enter">
 
@@ -26,5 +26,15 @@
             window.location.pathname = '/chat/' + roomName + '/';
         };
     </script>
+    <h1>Chat Rooms</h1>
+    {% if latest_room_list %}
+    <ul>
+    {% for room in latest_room_list %}
+        <li><a href="/chat/{{ room_name.id }}/">{{ room_name.id }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No rooms are active. Enter the title of a room you would like to start in the above!</p>
+{% endif %}
 </body>
 </html>
