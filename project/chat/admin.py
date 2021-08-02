@@ -1,4 +1,4 @@
 from django.contrib import admin
-from .models import RoomIndex
+from .models import Room
 
-admin.site.register(RoomIndex)
+admin.site.register(Room)

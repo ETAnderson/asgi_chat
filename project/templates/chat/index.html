@@ -30,7 +30,7 @@
     {% if latest_room_list %}
     <ul>
     {% for room in latest_room_list %}
-        <li><a href="/chat/{{ room_name.id }}/">{{ room_name.id }}</a></li>
+        <li><a href="/chat/{{ room.room_name }}/">{{ room.room_name}}</a></li>
     {% endfor %}
     </ul>
 {% else %}

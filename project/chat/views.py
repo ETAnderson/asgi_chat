@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views import generic
 from django.utils import timezone
 
-from .models import RoomIndex
+from .models import Room
 
 
 class IndexView(generic.ListView):
@@ -10,7 +10,7 @@ class IndexView(generic.ListView):
     context_object_name = 'latest_room_list'
 
     def get_queryset(self):
-        return RoomIndex.objects.filter(created_on=timezone.now()).order_by('-created_on')[:5]
+        return Room.objects.filter(created_on__lte=timezone.now()).order_by('-created_on')[:5]
 
 
 def index(request):

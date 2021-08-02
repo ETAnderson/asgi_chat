@@ -1,6 +1,10 @@
 * {
     background-color: rgb(194, 109, 39);
 }
+* button {
+    background-color: white;
+    border-radius: 5px;
+}
 input {
     background-color: white;
     border-radius: 5px;

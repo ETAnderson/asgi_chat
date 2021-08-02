@@ -3,16 +3,23 @@ import datetime
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.auth import login
 from .models import Room
-
+from channels.db import database_sync_to_async
 
 class ChatConsumer(AsyncWebsocketConsumer):
+    def add_room(self):
+        return Room.objects.create(room_name=self.room_name)
+
     async def connect(self):
         self.user = self.scope["user"]
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'chat_%s' % self.room_name
-        Room.objects.create(room_name=self.channel_name)
+        self.room = await database_sync_to_async(self.add_room)()
 
+
+        # Verify logged in
         await login(self.scope, self.user)
+
+
         # Join room group
         await self.channel_layer.group_add(
             self.room_group_name,
@@ -21,8 +28,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         await self.accept()
 
+
     async def disconnect(self, close_code):
-        Room.objects.filter(room_name=self.channel_name).delete
+        #Remove room from index
+        remove_Room = await database_sync_to_async(Room.objects.filter(room_name=self.channel_name).delete())
+
+        await database_sync_to_async(remove_Room())
+
         # Leave room group
         await self.channel_layer.group_discard(
             self.room_group_name,
