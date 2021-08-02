@@ -2,12 +2,15 @@ import json
 import datetime
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.auth import login
+from .models import Room
+
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.user = self.scope["user"]
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'chat_%s' % self.room_name
+        Room.objects.create(room_name=self.channel_name)
 
         await login(self.scope, self.user)
         # Join room group
@@ -19,6 +22,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
+        Room.objects.filter(room_name=self.channel_name).delete
         # Leave room group
         await self.channel_layer.group_discard(
             self.room_group_name,
