@@ -7,7 +7,11 @@ from channels.db import database_sync_to_async
 
 class ChatConsumer(AsyncWebsocketConsumer):
     def add_room(self):
-        return Room.objects.create(room_name=self.room_name)
+        return Room.objects.create(user=self.user, room_name=self.room_name)
+
+
+    def remove_Room(self):
+        return Room.objects.filter(room_name=self.channel_name).delete()
 
     async def connect(self):
         self.user = self.scope["user"]
@@ -31,9 +35,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         #Remove room from index
-        remove_Room = await database_sync_to_async(Room.objects.filter(room_name=self.channel_name).delete())
+        remove_Room = await database_sync_to_async(self.remove_Room)()
 
-        await database_sync_to_async(remove_Room())
+        await self.remove_Room()
 
         # Leave room group
         await self.channel_layer.group_discard(

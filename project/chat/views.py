@@ -10,7 +10,7 @@ class IndexView(generic.ListView):
     context_object_name = 'latest_room_list'
 
     def get_queryset(self):
-        return Room.objects.filter(created_on__lte=timezone.now()).order_by('-created_on')[:5]
+        return Room.objects.filter(created_on__lte=timezone.now()).order_by('-created_on')[:10]
 
 
 def index(request):
